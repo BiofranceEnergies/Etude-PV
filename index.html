@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -40,6 +39,16 @@
 <form>
   <div><label>Consommation annuelle (kWh)</label><input type="number" id="conso" value="9800"></div>
   <div><label>Prix du kWh (€)</label><input type="number" id="prixKwh" value="0.200" step="0.001"></div>
+  <div><label>⚡ Puissance installée (kWc)</label>
+    <select id="puissance">
+      <option value="">Sélectionnez...</option>
+      <option>3 kWc</option>
+      <option>4,5 kWc</option>
+      <option>6 kWc</option>
+      <option>9 kWc</option>
+      <option>12 kWc</option>
+    </select>
+  </div>
   <div><label>Production photovoltaïque (kWh/an)</label><input type="number" id="prod" value="6200"></div>
   <div><label>% Autoconsommation</label><input type="number" id="autoconso" value="40"></div>
   <div><label>Coût d'acheminement stockage (€ / kWh)</label><input type="number" id="acheminement" value="0.05" step="0.001"></div>
@@ -62,24 +71,25 @@
     const autoPct = parseFloat(document.getElementById('autoconso').value);
     const acheminement = parseFloat(document.getElementById('acheminement').value);
     const taux = parseFloat(document.getElementById('taux').value) / 100;
+    const puissance = document.getElementById('puissance').value;
 
     const autoKwh = prod * autoPct / 100;
     const stockKwh = prod - autoKwh;
     const facture = conso * prixKwh;
 
-    document.getElementById('recapSimulation').innerText =
-      `Consommation annuelle : ${conso} kWh
-` +
-      `Prix du kWh : ${prixKwh.toFixed(3)} €
-` +
-      `Facture annuelle (hors abonnement et taxes) : ${facture.toFixed(0)} €
-` +
-      `Production annuelle : ${prod} kWh
-` +
-      `En autoconsommation : ${autoKwh.toFixed(0)} kWh (${autoPct.toFixed(0)} %)
-` +
-      `Surplus : ${stockKwh.toFixed(0)} kWh (${(100 - autoPct).toFixed(0)} %)`;
+    let recapText =
+      `Consommation annuelle : ${conso} kWh\n` +
+      `Prix du kWh : ${prixKwh.toFixed(3)} €\n` +
+      `Facture annuelle (hors abonnement et taxes) : ${facture.toFixed(0)} €\n` +
+      `Production annuelle : ${prod} kWh\n` +
+      `En autoconsommation : ${autoKwh.toFixed(0)} kWh (${autoPct.toFixed(0)} %)\n` +
+      `Surplus : ${stockKwh.toFixed(0)} kWh (${(100 - autoPct).toFixed(0)} %)\n`;
 
+    if (puissance) {
+      recapText += `Puissance installée : ${puissance}\n`;
+    }
+
+    document.getElementById('recapSimulation').innerText = recapText;
 
     let table = '<table><thead><tr><th>Année</th>';
     for (let i = 1; i <= 15; i++) table += `<th>${i}</th>`;
