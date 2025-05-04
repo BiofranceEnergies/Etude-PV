@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Votre étude photovoltaïque</title>
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPz59eSA-UkT2AzlQzXslwzt8V5uftFzM&libraries=places"></script>
   <style>
@@ -114,43 +114,38 @@
       const recap = document.getElementById('recapSimulation');
       recap.innerHTML = `Consommation : <strong>${conso} kWh</strong>, prix du kWh : <strong>${prixInitial} €</strong>, production : <strong>${prod} kWh</strong>, autoconsommation : <strong>${autoKwh.toFixed(0)} kWh</strong> (${(autoPct * 100).toFixed(0)} %), surplus : <strong>${stockKwh.toFixed(0)} kWh</strong>${puissance ? `, puissance : <strong>${puissance}</strong>` : ''}`;
 
-      let prix = prixInitial;
       let totalEconomie = 0;
-
-      let table = `
-      <table>
-        <thead>
-          <tr><th>Année</th>${Array.from({ length: 15 }, (_, i) => `<th>${i + 1}</th>`).join('')}</tr>
-        </thead>
-        <tbody>
-          <tr><td class="label">Prix du kWh</td>${generateLigne(15, i => (prixInitial * Math.pow(1 + taux, i)).toFixed(3) + ' €')}</tr>
-          <tr><td class="label">Consommation actuelle<br><span style='font-style:italic; color:#555;'>(${conso} kWh)</span></td>${generateLigne(15, i => (conso * prixInitial * Math.pow(1 + taux, i)).toFixed(0) + ' €')}</tr>
-          <tr><td class="label">Autoconsommation<br><span style='font-style:italic; color:#555;'>(${autoKwh.toFixed(0)} kWh)</span></td>${generateLigne(15, i => '-' + (autoKwh * prixInitial * Math.pow(1 + taux, i)).toFixed(0) + ' €')}</tr>
-          <tr><td class="label">Stockage virtuel<br><span style='font-style:italic; color:#555;'>(${stockKwh.toFixed(0)} kWh)</span></td>${generateLigne(15, i => '-' + (stockKwh * prixInitial * Math.pow(1 + taux, i)).toFixed(0) + ' €')}</tr>
-          <tr><td class="label">Acheminement stockage<br><span style='font-style:italic; color:#555;'>(${coutAcheminement} €/kWh)</span></td>${generateLigne(15, () => '+' + (stockKwh * coutAcheminement).toFixed(0) + ' €')}</tr>
-          <tr><td class="label blue">Nouvelle facture</td>${generateLigne(15, i => {
-            const prixAn = prixInitial * Math.pow(1 + taux, i);
-            const facture = conso * prixAn - autoKwh * prixAn - stockKwh * prixAn + stockKwh * coutAcheminement;
-            return facture.toFixed(0) + ' €';
-          })}</tr>
-          <tr><td class="label green">Économie annuelle</td>${generateLigne(15, i => {
-            const prixAn = prixInitial * Math.pow(1 + taux, i);
-            const factureAvant = conso * prixAn;
-            const factureApres = factureAvant - autoKwh * prixAn - stockKwh * prixAn + stockKwh * coutAcheminement;
-            const eco = factureAvant - factureApres;
-            totalEconomie += eco;
-            return eco.toFixed(0) + ' €';
-          })}</tr>
-          <tr><td class="label dark-green">Économie mensuelle</td>${generateLigne(15, i => {
-            const prixAn = prixInitial * Math.pow(1 + taux, i);
-            const factureAvant = conso * prixAn;
-            const factureApres = factureAvant - autoKwh * prixAn - stockKwh * prixAn + stockKwh * coutAcheminement;
-            return (Math.round((factureAvant - factureApres) / 12)) + ' €';
-          })}</tr>
-        </tbody>
-      </table>
-      <p class='total'>Soit en 15 ans une économie réalisée de : <strong>${totalEconomie.toFixed(0)} €</strong></p>`;
-
+      const table = `
+        <table>
+          <thead>
+            <tr><th>Année</th>${Array.from({ length: 15 }, (_, i) => `<th>${i + 1}</th>`).join('')}</tr>
+          </thead>
+          <tbody>
+            <tr><td class="label">Prix du kWh</td>${generateLigne(15, i => (prixInitial * Math.pow(1 + taux, i)).toFixed(3) + ' €')}</tr>
+            <tr><td class="label">Consommation actuelle<br><span style='font-style:italic; color:#555;'>(${conso} kWh)</span></td>${generateLigne(15, i => (conso * prixInitial * Math.pow(1 + taux, i)).toFixed(0) + ' €')}</tr>
+            <tr><td class="label">Autoconsommation<br><span style='font-style:italic; color:#555;'>(${autoKwh.toFixed(0)} kWh)</span></td>${generateLigne(15, i => '-' + (autoKwh * prixInitial * Math.pow(1 + taux, i)).toFixed(0) + ' €')}</tr>
+            <tr><td class="label">Stockage virtuel<br><span style='font-style:italic; color:#555;'>(${stockKwh.toFixed(0)} kWh)</span></td>${generateLigne(15, i => '-' + (stockKwh * prixInitial * Math.pow(1 + taux, i)).toFixed(0) + ' €')}</tr>
+            <tr><td class="label">Acheminement stockage<br><span style='font-style:italic; color:#555;'>(${coutAcheminement} €/kWh)</span></td>${generateLigne(15, () => '+' + (stockKwh * coutAcheminement).toFixed(0) + ' €')}</tr>
+            <tr><td class="label blue">Nouvelle facture</td>${generateLigne(15, i => {
+              const prixAn = prixInitial * Math.pow(1 + taux, i);
+              const facture = conso * prixAn - autoKwh * prixAn - stockKwh * prixAn + stockKwh * coutAcheminement;
+              return facture.toFixed(0) + ' €';
+            })}</tr>
+            <tr><td class="label green">Économie annuelle</td>${generateLigne(15, i => {
+              const prixAn = prixInitial * Math.pow(1 + taux, i);
+              const eco = autoKwh * prixAn + stockKwh * prixAn - stockKwh * coutAcheminement;
+              totalEconomie += eco;
+              return eco.toFixed(0) + ' €';
+            })}</tr>
+            <tr><td class="label dark-green">Économie mensuelle</td>${generateLigne(15, i => {
+              const prixAn = prixInitial * Math.pow(1 + taux, i);
+              const eco = autoKwh * prixAn + stockKwh * prixAn - stockKwh * coutAcheminement;
+              return Math.round(eco / 12) + ' €';
+            })}</tr>
+          </tbody>
+        </table>
+        <p class='total'>Soit en 15 ans une économie réalisée de : <strong>${totalEconomie.toFixed(0)} €</strong></p>
+      `;
       document.getElementById("resultatSimulation").innerHTML = table;
     }
 
@@ -160,12 +155,30 @@
 
     window.addEventListener('load', function () {
       const adresseInput = document.getElementById('adresse');
+      const cpVilleInput = document.getElementById('cpville');
+
       if (adresseInput) {
-        new google.maps.places.Autocomplete(adresseInput, {
+        const autocomplete = new google.maps.places.Autocomplete(adresseInput, {
           types: ['geocode'],
           componentRestrictions: { country: 'fr' }
         });
+
+        autocomplete.addListener('place_changed', function () {
+          const place = autocomplete.getPlace();
+          let cp = '';
+          let ville = '';
+
+          if (place.address_components) {
+            place.address_components.forEach(function (component) {
+              const types = component.types;
+              if (types.includes('postal_code')) cp = component.long_name;
+              if (types.includes('locality')) ville = component.long_name;
+            });
+            cpVilleInput.value = `${cp} ${ville}`.trim();
+          }
+        });
       }
+
       updateAutoValues();
     });
   </script>
