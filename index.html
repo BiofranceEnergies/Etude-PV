@@ -163,20 +163,29 @@
           componentRestrictions: { country: 'fr' }
         });
 
-        autocomplete.addListener('place_changed', function () {
-          const place = autocomplete.getPlace();
-          let cp = '';
-          let ville = '';
+     autocomplete.addListener('place_changed', function () {
+  const place = autocomplete.getPlace();
+  let rue = '';
+  let numero = '';
+  let cp = '';
+  let ville = '';
 
-          if (place.address_components) {
-            place.address_components.forEach(function (component) {
-              const types = component.types;
-              if (types.includes('postal_code')) cp = component.long_name;
-              if (types.includes('locality')) ville = component.long_name;
-            });
-            cpVilleInput.value = `${cp} ${ville}`.trim();
-          }
-        });
+  if (place.address_components) {
+    place.address_components.forEach(function (component) {
+      const types = component.types;
+      if (types.includes('street_number')) numero = component.long_name;
+      if (types.includes('route')) rue = component.long_name;
+      if (types.includes('postal_code')) cp = component.long_name;
+      if (types.includes('locality')) ville = component.long_name;
+    });
+
+    // Affecter l’adresse propre
+    adresseInput.value = `${numero} ${rue}`.trim();
+    // Affecter CP + Ville
+    cpVilleInput.value = `${cp} ${ville}`.trim();
+  }
+});
+
       }
 
       updateAutoValues();
