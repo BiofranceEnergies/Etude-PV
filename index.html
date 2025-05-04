@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -28,17 +29,17 @@
 <h1>Votre étude photovoltaïque personnalisée</h1>
 
 <div class="identite">
-  <div><label>Nom / Prénom</label><input type="text" id="nom"></div>
-  <div><label>Adresse</label><input type="text" id="adresse"></div>
-  <div><label>Code postal + Ville</label><input type="text" id="cpville"></div>
-  <div><label>Téléphone</label><input type="text" id="tel"></div>
-  <div><label>Email</label><input type="email" id="email"></div>
-  <div><label>Point de livraison (PDL)</label><input type="text" id="pdl"></div>
+  <div><label>👤 Nom / Prénom</label><input type="text" id="nom"></div>
+  <div><label>🏠 Adresse</label><input type="text" id="adresse"></div>
+  <div><label>📍 Code postal + Ville</label><input type="text" id="cpville"></div>
+  <div><label>📞 Téléphone</label><input type="text" id="tel"></div>
+  <div><label>✉️ Email</label><input type="email" id="email"></div>
+  <div><label>🔢 Point de livraison (PDL)</label><input type="text" id="pdl"></div>
 </div>
 
 <form>
-  <div><label>Consommation annuelle (kWh)</label><input type="number" id="conso" value="9800"></div>
-  <div><label>Prix du kWh (€)</label><input type="number" id="prixKwh" value="0.200" step="0.001"></div>
+  <div><label>🔌 Consommation annuelle (kWh)</label><input type="number" id="conso" value="9800"></div>
+  <div><label>💶 Prix du kWh (€)</label><input type="number" id="prixKwh" value="0.200" step="0.001"></div>
   <div><label>⚡ Puissance installée (kWc)</label>
     <select id="puissance">
       <option value="">Sélectionnez...</option>
@@ -49,10 +50,10 @@
       <option>12 kWc</option>
     </select>
   </div>
-  <div><label>Production photovoltaïque (kWh/an)</label><input type="number" id="prod" value="6200"></div>
-  <div><label>% Autoconsommation</label><input type="number" id="autoconso" value="40"></div>
-  <div><label>Coût d'acheminement stockage (€ / kWh)</label><input type="number" id="acheminement" value="0.05" step="0.001"></div>
-  <div><label>Taux d’augmentation du kWh / an (%)</label><input type="number" id="taux" value="5" step="0.1"></div>
+  <div><label>🔋 Production photovoltaïque annuelle (kWh)</label><input type="number" id="prod" value="6200"></div>
+  <div><label>📊 % d'autoconsommation</label><input type="number" id="autoconso" value="40"></div>
+  <div><label>📦 Coût d'acheminement stockage (€ / kWh)</label><input type="number" id="acheminement" value="0.05" step="0.001"></div>
+  <div><label>📈 Taux d’augmentation annuelle du kWh (%)</label><input type="number" id="taux" value="5" step="0.1"></div>
   <div class="full-width">
     <button type="button" onclick="genererSimulation()">📊 Générer le tableau</button>
     <button type="button" onclick="exporterPDF()">📄 Exporter la boîte jaune en PDF</button>
@@ -78,15 +79,22 @@
     const facture = conso * prixKwh;
 
     let recapText =
-      `Consommation annuelle : ${conso} kWh\n` +
-      `Prix du kWh : ${prixKwh.toFixed(3)} €\n` +
-      `Facture annuelle (hors abonnement et taxes) : ${facture.toFixed(0)} €\n` +
-      `Production annuelle : ${prod} kWh\n` +
-      `En autoconsommation : ${autoKwh.toFixed(0)} kWh (${autoPct.toFixed(0)} %)\n` +
-      `Surplus : ${stockKwh.toFixed(0)} kWh (${(100 - autoPct).toFixed(0)} %)\n`;
+      `Consommation annuelle : ${conso} kWh
+` +
+      `Prix du kWh : ${prixKwh.toFixed(3)} €
+` +
+      `Facture annuelle (hors abonnement et taxes) : ${facture.toFixed(0)} €
+` +
+      `Production annuelle : ${prod} kWh
+` +
+      `En autoconsommation : ${autoKwh.toFixed(0)} kWh (${autoPct.toFixed(0)} %)
+` +
+      `Surplus : ${stockKwh.toFixed(0)} kWh (${(100 - autoPct).toFixed(0)} %)
+`;
 
     if (puissance) {
-      recapText += `Puissance installée : ${puissance}\n`;
+      recapText += `Puissance installée : ${puissance}
+`;
     }
 
     document.getElementById('recapSimulation').innerText = recapText;
