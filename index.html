@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Votre étude photovoltaïque</title>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPz59eSA-UkT2AzlQzXslwzt8V5uftFzM&libraries=places"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f7f9fc; }
+    h1 { background: #5cb85c; color: white; padding: 10px; text-align: center; border-radius: 5px; }
+    .identite { background: #ffffff; border-radius: 6px; padding: 15px; margin: 10px 0 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .identite label { font-weight: bold; display: block; margin-bottom: 5px; }
+    .identite input { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
+    form { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    .full-width { grid-column: span 2; }
+    label { font-weight: bold; margin-bottom: 5px; display: block; }
+    input[type=number], select { padding: 8px; width: 100%; border: 1px solid #ccc; border-radius: 4px; }
+    .field-group { display: flex; flex-direction: column; }
+    .output-line { margin-top: 5px; font-style: italic; color: #444; }
+    button { padding: 12px 20px; font-size: 16px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    button:hover { background: #218838; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.9rem; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.1); margin-top: 20px; }
+    th, td { border: 1px solid #999; padding: 8px; text-align: center; }
+    th { background-color: #007bff; color: white; }
+    td.label { font-weight: bold; font-size: 0.95rem; color: #003366; text-align: left; padding-left: 12px; background: #eef3f9; }
+    .red { color: red; font-weight: bold; }
+    .blue { color: #007bff; font-weight: bold; }
+    .green { background-color: #c8e6c9; font-weight: bold; }
+    .dark-green { background-color: #aed581; font-weight: bold; }
+    .total { font-size: 1.2em; font-weight: bold; text-align: center; padding: 15px; margin-top: 20px; background: #fff; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .recap { background: #fff3cd; padding: 15px; margin-bottom: 20px; border: 1px solid #ffeeba; border-radius: 6px; font-size: 0.95rem; color: #856404; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <h1>Votre étude photovoltaïque personnalisée</h1>
+
+  <div class="identite">
+    <div><label for="nom">👤 Nom / Prénom</label><input type="text" id="nom"></div>
+    <div><label for="adresse">🏠 Adresse</label><input type="text" id="adresse"></div>
+    <div><label for="cpville">📍 Code postal + Ville</label><input type="text" id="cpville"></div>
+    <div><label for="tel">📞 Téléphone</label><input type="text" id="tel"></div>
+    <div><label for="email">✉️ Email</label><input type="email" id="email"></div>
+    <div><label for="pdl">🔢 Point de livraison (PDL)</label><input type="text" id="pdl"></div>
+  </div>
+
+  <div class="recap" id="recapSimulation">Simulation en attente de génération.</div>
+
+  <form>
+    <div class="field-group">
+      <label for="conso">🔌 Consommation annuelle (kWh)</label>
+      <input type="number" id="conso" value="9800" oninput="updateAutoValues()">
+    </div>
+    <div class="field-group">
+      <label for="prixKwh">💶 Prix du kWh (€)</label>
+      <input type="number" id="prixKwh" value="0.200" step="0.001">
+    </div>
+    <div class="field-group">
+      <label for="puissance">⚡ Puissance installée (kWc)</label>
+      <select id="puissance">
+        <option value="">Sélectionnez...</option>
+        <option>3 kWc</option>
+        <option>4,5 kWc</option>
+        <option>6 kWc</option>
+        <option>9 kWc</option>
+        <option>12 kWc</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label for="prod">🔋 Production photovoltaïque annuelle (kWh)</label>
+      <input type="number" id="prod" value="6200" oninput="updateAutoValues()">
+    </div>
+    <div class="field-group">
+      <label for="autoconso">📊 % d'autoconsommation</label>
+      <input type="number" id="autoconso" value="35" oninput="updateAutoValues()">
+    </div>
+    <div class="full-width">
+      <div class="output-line" id="resultAuto">→ Autoconsommation : 2170 kWh</div>
+      <div class="output-line" id="resultStock">→ Surplus (stockage virtuel) : 4030 kWh</div>
+    </div>
+    <div class="field-group">
+      <label for="acheminement">📦 Coût d'acheminement stockage (€ / kWh)</label>
+      <input type="number" id="acheminement" value="0.05" step="0.001">
+    </div>
+    <div class="field-group">
+      <label for="taux">📈 Taux d'augmentation annuelle du kWh (%)</label>
+      <input type="number" id="taux" value="5" step="0.1">
+    </div>
+    <button type="button" onclick="genererTableau()">📊 Générer le tableau</button>
+  </form>
+
+  <div id="resultatSimulation"></div>
+
+  <script>
+    function updateAutoValues() {
+      const prod = parseFloat(document.getElementById('prod').value);
+      const autoPct = parseFloat(document.getElementById('autoconso').value) / 100;
+      const autoKwh = prod * autoPct;
+      const stockKwh = prod * (1 - autoPct);
+      document.getElementById("resultAuto").textContent = `→ Autoconsommation : ${autoKwh.toFixed(0)} kWh`;
+      document.getElementById("resultStock").textContent = `→ Surplus (stockage virtuel) : ${stockKwh.toFixed(0)} kWh`;
+    }
+
+    function genererTableau() {
+      const conso = parseFloat(document.getElementById('conso').value);
+      const prixInitial = parseFloat(document.getElementById('prixKwh').value);
+      const autoPct = parseFloat(document.getElementById('autoconso').value) / 100;
+      const prod = parseFloat(document.getElementById('prod').value);
+      const autoKwh = prod * autoPct;
+      const stockKwh = prod * (1 - autoPct);
+      const coutAcheminement = parseFloat(document.getElementById('acheminement').value);
+      const taux = parseFloat(document.getElementById('taux').value) / 100;
+      const puissance = document.getElementById('puissance').value;
+
+      const recap = document.getElementById('recapSimulation');
+      recap.innerHTML = `Consommation : <strong>${conso} kWh</strong>, prix du kWh : <strong>${prixInitial} €</strong>, production : <strong>${prod} kWh</strong>, autoconsommation : <strong>${autoKwh.toFixed(0)} kWh</strong> (${(autoPct * 100).toFixed(0)} %), surplus : <strong>${stockKwh.toFixed(0)} kWh</strong>${puissance ? `, puissance : <strong>${puissance}</strong>` : ''}`;
+
+      let prix = prixInitial;
+      let totalEconomie = 0;
+
+      let table = `
+      <table>
+        <thead>
+          <tr><th>Année</th>${Array.from({ length: 15 }, (_, i) => `<th>${i + 1}</th>`).join('')}</tr>
+        </thead>
+        <tbody>
+          <tr><td class="label">Prix du kWh</td>${generateLigne(15, i => (prixInitial * Math.pow(1 + taux, i)).toFixed(3) + ' €')}</tr>
+          <tr><td class="label">Consommation actuelle<br><span style='font-style:italic; color:#555;'>(${conso} kWh)</span></td>${generateLigne(15, i => (conso * prixInitial * Math.pow(1 + taux, i)).toFixed(0) + ' €')}</tr>
+          <tr><td class="label">Autoconsommation<br><span style='font-style:italic; color:#555;'>(${autoKwh.toFixed(0)} kWh)</span></td>${generateLigne(15, i => '-' + (autoKwh * prixInitial * Math.pow(1 + taux, i)).toFixed(0) + ' €')}</tr>
+          <tr><td class="label">Stockage virtuel<br><span style='font-style:italic; color:#555;'>(${stockKwh.toFixed(0)} kWh)</span></td>${generateLigne(15, i => '-' + (stockKwh * prixInitial * Math.pow(1 + taux, i)).toFixed(0) + ' €')}</tr>
+          <tr><td class="label">Acheminement stockage<br><span style='font-style:italic; color:#555;'>(${coutAcheminement} €/kWh)</span></td>${generateLigne(15, () => '+' + (stockKwh * coutAcheminement).toFixed(0) + ' €')}</tr>
+          <tr><td class="label blue">Nouvelle facture</td>${generateLigne(15, i => {
+            const prixAn = prixInitial * Math.pow(1 + taux, i);
+            const facture = conso * prixAn - autoKwh * prixAn - stockKwh * prixAn + stockKwh * coutAcheminement;
+            return facture.toFixed(0) + ' €';
+          })}</tr>
+          <tr><td class="label green">Économie annuelle</td>${generateLigne(15, i => {
+            const prixAn = prixInitial * Math.pow(1 + taux, i);
+            const factureAvant = conso * prixAn;
+            const factureApres = factureAvant - autoKwh * prixAn - stockKwh * prixAn + stockKwh * coutAcheminement;
+            const eco = factureAvant - factureApres;
+            totalEconomie += eco;
+            return eco.toFixed(0) + ' €';
+          })}</tr>
+          <tr><td class="label dark-green">Économie mensuelle</td>${generateLigne(15, i => {
+            const prixAn = prixInitial * Math.pow(1 + taux, i);
+            const factureAvant = conso * prixAn;
+            const factureApres = factureAvant - autoKwh * prixAn - stockKwh * prixAn + stockKwh * coutAcheminement;
+            return (Math.round((factureAvant - factureApres) / 12)) + ' €';
+          })}</tr>
+        </tbody>
+      </table>
+      <p class='total'>Soit en 15 ans une économie réalisée de : <strong>${totalEconomie.toFixed(0)} €</strong></p>`;
+
+      document.getElementById("resultatSimulation").innerHTML = table;
+    }
+
+    function generateLigne(n, fn) {
+      return Array.from({ length: n }, (_, i) => `<td>${fn(i)}</td>`).join('');
+    }
+
+    window.addEventListener('load', function () {
+      const adresseInput = document.getElementById('adresse');
+      if (adresseInput) {
+        new google.maps.places.Autocomplete(adresseInput, {
+          types: ['geocode'],
+          componentRestrictions: { country: 'fr' }
+        });
+      }
+      updateAutoValues();
+    });
+  </script>
+</body>
+</html>
