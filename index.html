@@ -4,35 +4,26 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Étude photovoltaïque</title>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPz59eSA-UkT2AzlQzXslwzt8V5uftFzM&libraries=places"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- styles identiques à la version précédente -->
   <style>
     body { font-family: Arial; padding: 20px; background: #f7f9fc; }
     h1 { background: #5cb85c; color: white; padding: 10px; text-align: center; border-radius: 5px; }
-    .identite, form, .upload-wrapper {
-      background: #fff; border-radius: 6px; padding: 15px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px;
-    }
+    .identite, form, .upload-wrapper { background: #fff; border-radius: 6px; padding: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .identite { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
     label { font-weight: bold; display: block; margin-bottom: 5px; }
-    input, select {
-      width: 100%; padding: 8px; margin-bottom: 10px;
-      border: 1px solid #ccc; border-radius: 4px;
-    }
-    .upload-wrapper label {
-      font-weight: bold; font-size: 1rem; margin-bottom: 10px; display: block;
-    }
+    input, select { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
+    .upload-wrapper label { font-weight: bold; font-size: 1rem; margin-bottom: 10px; display: block; }
     .upload-container {
       border: 2px dashed #d58512; background-color: #fef0d4;
-      width: 600px; height: 350px;
-      border-radius: 10px; margin: 0 auto;
-      position: relative; overflow: hidden; cursor: pointer;
+      width: 600px; height: 350px; border-radius: 10px;
+      margin: 0 auto; position: relative; overflow: hidden; cursor: pointer;
     }
     .upload-container input { display: none; }
     .upload-container img {
-      width: 100%; height: 100%;
-      object-fit: cover; display: none;
-      position: absolute; top: 0; left: 0;
-      border-radius: 10px;
+      width: 100%; height: 100%; object-fit: cover; display: none;
+      position: absolute; top: 0; left: 0; border-radius: 10px;
     }
     .full-width {
       display: flex; gap: 15px;
@@ -65,7 +56,7 @@
 
 <h1>Votre étude photovoltaïque personnalisée</h1>
 
-<!-- 📸 Photo de votre maison -->
+<!-- 📸 Photo maison -->
 <div class="upload-wrapper">
   <label for="uploadMaison">📸 Photo de votre maison</label>
   <div class="upload-container" onclick="document.getElementById('uploadMaison').click()">
@@ -74,7 +65,7 @@
   </div>
 </div>
 
-<!-- 👤 Informations client -->
+<!-- 👤 Infos client -->
 <div class="identite">
   <div><label>👤 Nom / Prénom</label><input type="text" id="nom"></div>
   <div><label>🏠 Adresse</label><input type="text" id="adresse"></div>
@@ -100,7 +91,7 @@
   </div>
 </form>
 
-<!-- 📦 Panneaux photovoltaïques -->
+<!-- 📦 Panneaux -->
 <div class="upload-wrapper">
   <label for="uploadPanneaux">📦 Panneaux photovoltaïques</label>
   <div class="upload-container" onclick="document.getElementById('uploadPanneaux').click()">
@@ -109,7 +100,7 @@
   </div>
 </div>
 
-<!-- 📈 Performance système PV -->
+<!-- 📈 Résultats -->
 <div class="upload-wrapper">
   <label for="uploadResultats">📈 Performance du système PV couplé au réseau : Résultats</label>
   <div class="upload-container" onclick="document.getElementById('uploadResultats').click()">
@@ -118,7 +109,7 @@
   </div>
 </div>
 
-<!-- 🔋 Suite du formulaire -->
+<!-- Suite du formulaire -->
 <form>
   <div><label>🔋 Production photovoltaïque annuelle (kWh)</label><input type="number" id="prod" value="6200"></div>
   <div><label>📊 % d'autoconsommation</label><input type="number" id="autoconso" value="40"></div>
@@ -130,11 +121,10 @@
   </div>
 </form>
 
-<!-- Résultats -->
 <div class="recap" id="recapSimulation">Simulation en attente de génération.</div>
 <div id="resultatSimulation"></div>
 
-<!-- JS : Téléversement et calcul -->
+<!-- Scripts -->
 <script>
   function previewImage(event, id) {
     const file = event.target.files[0];
@@ -227,6 +217,37 @@ Surplus : ${stockKwh.toFixed(0)} kWh (${(100 - autoPct).toFixed(0)} %)`;
     doc.text(recapText, 10, 10);
     doc.save("etude_photovoltaique.pdf");
   }
+
+  // ✅ Autocomplétion Google Maps
+  window.addEventListener('load', function () {
+    const adresseInput = document.getElementById('adresse');
+    const cpVilleInput = document.getElementById('cpville');
+
+    if (adresseInput) {
+      const autocomplete = new google.maps.places.Autocomplete(adresseInput, {
+        types: ['geocode'],
+        componentRestrictions: { country: 'fr' }
+      });
+
+      autocomplete.addListener('place_changed', function () {
+        const place = autocomplete.getPlace();
+        let rue = '', numero = '', cp = '', ville = '';
+
+        if (place.address_components) {
+          place.address_components.forEach(function (component) {
+            const types = component.types;
+            if (types.includes('street_number')) numero = component.long_name;
+            if (types.includes('route')) rue = component.long_name;
+            if (types.includes('postal_code')) cp = component.long_name;
+            if (types.includes('locality')) ville = component.long_name;
+          });
+
+          adresseInput.value = `${numero} ${rue}`.trim();
+          cpVilleInput.value = `${cp} ${ville}`.trim();
+        }
+      });
+    }
+  });
 </script>
 
 </body>
