@@ -6,7 +6,6 @@
   <title>Étude photovoltaïque</title>
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPz59eSA-UkT2AzlQzXslwzt8V5uftFzM&libraries=places"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <!-- styles identiques à la version précédente -->
   <style>
     body { font-family: Arial; padding: 20px; background: #f7f9fc; }
     h1 { background: #5cb85c; color: white; padding: 10px; text-align: center; border-radius: 5px; }
@@ -16,14 +15,24 @@
     input, select { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
     .upload-wrapper label { font-weight: bold; font-size: 1rem; margin-bottom: 10px; display: block; }
     .upload-container {
-      border: 2px dashed #d58512; background-color: #fef0d4;
+      border: 2px dashed #d58512; background-color: #00000;
       width: 600px; height: 350px; border-radius: 10px;
       margin: 0 auto; position: relative; overflow: hidden; cursor: pointer;
     }
     .upload-container input { display: none; }
     .upload-container img {
-      width: 100%; height: 100%; object-fit: cover; display: none;
-      position: absolute; top: 0; left: 0; border-radius: 10px;
+      width: 100%; height: 100%; object-fit: contain;
+      display: none; position: absolute;
+      top: 0; left: 0; border-radius: 10px;
+    }
+    .placeholder {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      color: #d58512;
+      font-size: 1.2rem;
+      pointer-events: none;
+      text-align: center;
     }
     .full-width {
       display: flex; gap: 15px;
@@ -61,6 +70,7 @@
   <label for="uploadMaison">📸 Photo de votre maison</label>
   <div class="upload-container" onclick="document.getElementById('uploadMaison').click()">
     <input type="file" id="uploadMaison" accept="image/*" onchange="previewImage(event, 'previewMaison')">
+    <span class="placeholder" id="placeholderMaison">📤 Téléverser une image</span>
     <img id="previewMaison" />
   </div>
 </div>
@@ -96,6 +106,7 @@
   <label for="uploadPanneaux">📦 Panneaux photovoltaïques</label>
   <div class="upload-container" onclick="document.getElementById('uploadPanneaux').click()">
     <input type="file" id="uploadPanneaux" accept="image/*" onchange="previewImage(event, 'previewPanneaux')">
+    <span class="placeholder" id="placeholderPanneaux">📤 Téléverser une image</span>
     <img id="previewPanneaux" />
   </div>
 </div>
@@ -105,6 +116,7 @@
   <label for="uploadResultats">📈 Performance du système PV couplé au réseau : Résultats</label>
   <div class="upload-container" onclick="document.getElementById('uploadResultats').click()">
     <input type="file" id="uploadResultats" accept="image/*" onchange="previewImage(event, 'previewResultats')">
+    <span class="placeholder" id="placeholderResultats">📤 Téléverser une image</span>
     <img id="previewResultats" />
   </div>
 </div>
@@ -124,16 +136,17 @@
 <div class="recap" id="recapSimulation">Simulation en attente de génération.</div>
 <div id="resultatSimulation"></div>
 
-<!-- Scripts -->
 <script>
   function previewImage(event, id) {
     const file = event.target.files[0];
     const preview = document.getElementById(id);
+    const placeholder = document.getElementById('placeholder' + id.replace('preview', ''));
     if (file && file.type.startsWith('image/')) {
       const reader = new FileReader();
       reader.onload = function(e) {
         preview.src = e.target.result;
         preview.style.display = 'block';
+        if (placeholder) placeholder.style.display = 'none';
       };
       reader.readAsDataURL(file);
     }
@@ -152,12 +165,7 @@
     const stockKwh = prod - autoKwh;
     const facture = conso * prixKwh;
 
-    let recapText = `Consommation annuelle : ${conso} kWh
-Prix du kWh : ${prixKwh.toFixed(3)} €
-Facture annuelle (hors abonnement et taxes) : ${facture.toFixed(0)} €
-Production annuelle : ${prod} kWh
-En autoconsommation : ${autoKwh.toFixed(0)} kWh (${autoPct.toFixed(0)} %)
-Surplus : ${stockKwh.toFixed(0)} kWh (${(100 - autoPct).toFixed(0)} %)`;
+    let recapText = `Consommation annuelle : ${conso} kWh\nPrix du kWh : ${prixKwh.toFixed(3)} €\nFacture annuelle (hors abonnement et taxes) : ${facture.toFixed(0)} €\nProduction annuelle : ${prod} kWh\nEn autoconsommation : ${autoKwh.toFixed(0)} kWh (${autoPct.toFixed(0)} %)\nSurplus : ${stockKwh.toFixed(0)} kWh (${(100 - autoPct).toFixed(0)} %)`;
 
     if (puissance) recapText += `\nPuissance installée : ${puissance}`;
 
@@ -218,7 +226,6 @@ Surplus : ${stockKwh.toFixed(0)} kWh (${(100 - autoPct).toFixed(0)} %)`;
     doc.save("etude_photovoltaique.pdf");
   }
 
-  // ✅ Autocomplétion Google Maps
   window.addEventListener('load', function () {
     const adresseInput = document.getElementById('adresse');
     const cpVilleInput = document.getElementById('cpville');
