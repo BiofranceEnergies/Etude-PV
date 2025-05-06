@@ -59,50 +59,30 @@
     th { background: #007bff; color: white; }
     .label { background: #eef3f9; font-weight: bold; text-align: left; padding-left: 10px; }
 
-    
     @media print {
-      body {
-        zoom: 0.85;
-      }
-      button {
-        display: none !important;
-      }
+      body { zoom: 0.85; }
+      button { display: none !important; }
       .identite, form, .upload-wrapper, .recap, table {
         margin-bottom: 25px !important;
         page-break-inside: avoid;
       }
-      .identite input,
-      .identite label,
-      form input,
-      form select,
-      form label,
-      .recap,
-      table {
+      .identite input, .identite label,
+      form input, form select, form label,
+      .recap, table {
         font-size: 0.8rem;
       }
-      th, td {
-        padding: 5px;
-      }
-      h1 {
-        font-size: 1.2rem;
-        margin-bottom: 15px;
-      }
+      th, td { padding: 5px; }
+      h1 { font-size: 1.2rem; margin-bottom: 15px; }
     }
 
-    }
-  
-#entete-pdf { display: none; }
-@media print {
-  #entete-pdf { display: block !important; }
-}
-
-</style>
+    #entete-pdf { display: none; }
+    @media print { #entete-pdf { display: block !important; } }
+  </style>
 </head>
 <body>
 
 <script>
-  // 🔐 MOT DE PASSE D'ACCÈS AU CRM
-  const motDePasse = "biofrance2024"; // ← modifie ce mot de passe ici si besoin
+  const motDePasse = "biofrance2024";
   const saisie = prompt("Entrez le mot de passe pour accéder au CRM :");
   if (saisie !== motDePasse) {
     alert("Accès refusé.");
@@ -110,14 +90,10 @@
   }
 </script>
 
-
-<!-- En-tête réservé au PDF uniquement -->
 <div id="entete-pdf" style="display:none; text-align:center; margin-bottom: 20px;">
-  <img src="https://raw.githubusercontent.com/BiofranceEnergies/biofrance-images/main/Logo%20biofrance%20energie%20-%20Bleu%20%26%20green%20H%403x%20(1).png"
-       alt="Logo Biofrance Énergies" style="max-height:80px; margin-bottom:10px;">
+  <img src="https://raw.githubusercontent.com/BiofranceEnergies/biofrance-images/main/Logo%20biofrance%20energie%20-%20Bleu%20%26%20green%20H%403x%20(1).png" alt="Logo Biofrance Énergies" style="max-height:80px; margin-bottom:10px;">
   <div id="dateEtude" style="font-size:0.95rem; color:#333;"></div>
 </div>
-
 
 <h1>Votre étude photovoltaïque personnalisée</h1>
 
@@ -150,6 +126,14 @@
       <option>6 kWc</option>
       <option>9 kWc</option>
       <option>12 kWc</option>
+    </select>
+  </div>
+  <div><label>🧭 Exposition</label>
+    <select id="exposition">
+      <option value="">Sélectionnez...</option>
+      <option>Sud</option>
+      <option>Sud-Ouest</option>
+      <option>Sud-Est</option>
     </select>
   </div>
 </form>
@@ -210,6 +194,7 @@
     const acheminement = parseFloat(document.getElementById('acheminement').value);
     const taux = parseFloat(document.getElementById('taux').value) / 100;
     const puissance = document.getElementById('puissance').value;
+    const exposition = document.getElementById('exposition').value;
 
     const autoKwh = prod * autoPct / 100;
     const stockKwh = prod - autoKwh;
@@ -218,6 +203,7 @@
     let recapText = `Consommation annuelle : ${conso} kWh\nPrix du kWh : ${prixKwh.toFixed(3)} €\nFacture annuelle (hors abonnement et taxes) : ${facture.toFixed(0)} €\nProduction annuelle : ${prod} kWh\nEn autoconsommation : ${autoKwh.toFixed(0)} kWh (${autoPct.toFixed(0)} %)\nSurplus : ${stockKwh.toFixed(0)} kWh (${(100 - autoPct).toFixed(0)} %)`;
 
     if (puissance) recapText += `\nPuissance installée : ${puissance}`;
+    if (exposition) recapText += `\nExposition : ${exposition}`;
 
     document.getElementById('recapSimulation').innerText = recapText;
 
@@ -300,15 +286,15 @@
 </script>
 
 <script>
-function afficherDate() {
-  const date = new Date();
-  const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
-  const texte = "Date de l'étude : " + date.toLocaleDateString('fr-FR', options);
-  const cible = document.getElementById('dateEtude');
-  if (cible) cible.textContent = texte;
-}
-window.onload = afficherDate;
+  function afficherDate() {
+    const date = new Date();
+    const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+    const texte = "Date de l'étude : " + date.toLocaleDateString('fr-FR', options);
+    const cible = document.getElementById('dateEtude');
+    if (cible) cible.textContent = texte;
+  }
+  window.onload = afficherDate;
 </script>
-</body>
 
+</body>
 </html>
