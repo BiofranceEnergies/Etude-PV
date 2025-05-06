@@ -100,6 +100,17 @@
 </head>
 <body>
 
+<script>
+  // 🔐 MOT DE PASSE D'ACCÈS AU CRM
+  const motDePasse = "biofrance2024"; // ← modifie ce mot de passe ici si besoin
+  const saisie = prompt("Entrez le mot de passe pour accéder au CRM :");
+  if (saisie !== motDePasse) {
+    alert("Accès refusé.");
+    document.body.innerHTML = "<h2 style='text-align:center; color:red;'>⛔ Accès refusé</h2>";
+  }
+</script>
+
+
 <!-- En-tête réservé au PDF uniquement -->
 <div id="entete-pdf" style="display:none; text-align:center; margin-bottom: 20px;">
   <img src="https://raw.githubusercontent.com/BiofranceEnergies/biofrance-images/main/Logo%20biofrance%20energie%20-%20Bleu%20%26%20green%20H%403x%20(1).png"
