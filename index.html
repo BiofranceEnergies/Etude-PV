@@ -213,7 +213,8 @@
       table += '</tr>';
     });
 
-    table += `</tbody></table><p style="font-weight:bold; margin-top:15px;">Économie totale sur 15 ans : ${totalEconomie.toFixed(0)} €</p>`;
+    table += `</tbody></table><p style="font-weight:bold; margin-top:15px; font-size: 1.4rem; text-align: center;">Économie totale sur 15 ans : ${totalEconomie.toFixed(0)} €</p>`;
+
     document.getElementById('resultatSimulation').innerHTML = table;
   }
 
