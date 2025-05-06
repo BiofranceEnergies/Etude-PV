@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Étude photovoltaïque</title>
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPz59eSA-UkT2AzlQzXslwzt8V5uftFzM&libraries=places"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body { font-family: Arial; padding: 20px; background: #f7f9fc; }
     h1 { background: #5cb85c; color: white; padding: 10px; text-align: center; border-radius: 5px; }
@@ -59,13 +58,58 @@
     th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
     th { background: #007bff; color: white; }
     .label { background: #eef3f9; font-weight: bold; text-align: left; padding-left: 10px; }
-  </style>
+
+    
+    @media print {
+      body {
+        zoom: 0.85;
+      }
+      button {
+        display: none !important;
+      }
+      .identite, form, .upload-wrapper, .recap, table {
+        margin-bottom: 25px !important;
+        page-break-inside: avoid;
+      }
+      .identite input,
+      .identite label,
+      form input,
+      form select,
+      form label,
+      .recap,
+      table {
+        font-size: 0.8rem;
+      }
+      th, td {
+        padding: 5px;
+      }
+      h1 {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+      }
+    }
+
+    }
+  
+#entete-pdf { display: none; }
+@media print {
+  #entete-pdf { display: block !important; }
+}
+
+</style>
 </head>
 <body>
 
+<!-- En-tête réservé au PDF uniquement -->
+<div id="entete-pdf" style="display:none; text-align:center; margin-bottom: 20px;">
+  <img src="https://raw.githubusercontent.com/BiofranceEnergies/biofrance-images/main/Logo%20biofrance%20energie%20-%20Bleu%20%26%20green%20H%403x%20(1).png"
+       alt="Logo Biofrance Énergies" style="max-height:80px; margin-bottom:10px;">
+  <div id="dateEtude" style="font-size:0.95rem; color:#333;"></div>
+</div>
+
+
 <h1>Votre étude photovoltaïque personnalisée</h1>
 
-<!-- 📸 Photo maison -->
 <div class="upload-wrapper">
   <label for="uploadMaison">📸 Photo de votre maison</label>
   <div class="upload-container" onclick="document.getElementById('uploadMaison').click()">
@@ -75,7 +119,6 @@
   </div>
 </div>
 
-<!-- 👤 Infos client -->
 <div class="identite">
   <div><label>👤 Nom / Prénom</label><input type="text" id="nom"></div>
   <div><label>🏠 Adresse</label><input type="text" id="adresse"></div>
@@ -85,7 +128,6 @@
   <div><label>🔢 Point de livraison (PDL)</label><input type="text" id="pdl"></div>
 </div>
 
-<!-- ⚙️ Début du formulaire -->
 <form>
   <div><label>🔌 Consommation annuelle (kWh)</label><input type="number" id="conso" value="9800"></div>
   <div><label>💶 Prix du kWh (€)</label><input type="number" id="prixKwh" value="0.200" step="0.001"></div>
@@ -101,7 +143,6 @@
   </div>
 </form>
 
-<!-- 📦 Panneaux -->
 <div class="upload-wrapper">
   <label for="uploadPanneaux">📦 Panneaux photovoltaïques</label>
   <div class="upload-container" onclick="document.getElementById('uploadPanneaux').click()">
@@ -111,7 +152,6 @@
   </div>
 </div>
 
-<!-- 📈 Résultats -->
 <div class="upload-wrapper">
   <label for="uploadResultats">📈 Performance du système PV couplé au réseau : Résultats</label>
   <div class="upload-container" onclick="document.getElementById('uploadResultats').click()">
@@ -121,7 +161,6 @@
   </div>
 </div>
 
-<!-- Suite du formulaire -->
 <form>
   <div><label>🔋 Production photovoltaïque annuelle (kWh)</label><input type="number" id="prod" value="6200"></div>
   <div><label>📊 % d'autoconsommation</label><input type="number" id="autoconso" value="40"></div>
@@ -129,7 +168,7 @@
   <div><label>📈 Taux d’augmentation annuelle du kWh (%)</label><input type="number" id="taux" value="5" step="0.1"></div>
   <div class="full-width">
     <button type="button" onclick="genererSimulation()">📊 Générer le tableau</button>
-    <button type="button" onclick="exporterPDF()">📄 Exporter la boîte jaune en PDF</button>
+    <button type="button" onclick="window.print()">📄 Exporter l'étude en PDF</button>
   </div>
 </form>
 
@@ -218,15 +257,6 @@
     document.getElementById('resultatSimulation').innerHTML = table;
   }
 
-  function exporterPDF() {
-    const recapText = document.getElementById('recapSimulation').innerText;
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.setFontSize(12);
-    doc.text(recapText, 10, 10);
-    doc.save("etude_photovoltaique.pdf");
-  }
-
   window.addEventListener('load', function () {
     const adresseInput = document.getElementById('adresse');
     const cpVilleInput = document.getElementById('cpville');
@@ -258,5 +288,16 @@
   });
 </script>
 
+<script>
+function afficherDate() {
+  const date = new Date();
+  const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+  const texte = "Date de l'étude : " + date.toLocaleDateString('fr-FR', options);
+  const cible = document.getElementById('dateEtude');
+  if (cible) cible.textContent = texte;
+}
+window.onload = afficherDate;
+</script>
 </body>
+
 </html>
