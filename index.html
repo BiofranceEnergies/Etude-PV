@@ -185,74 +185,85 @@
       reader.readAsDataURL(file);
     }
   }
+function genererSimulation() {
+  const conso = parseFloat(document.getElementById('conso').value);
+  const prixKwh = parseFloat(document.getElementById('prixKwh').value);
+  const prod = parseFloat(document.getElementById('prod').value);
+  const autoPct = parseFloat(document.getElementById('autoconso').value);
+  const acheminement = parseFloat(document.getElementById('acheminement').value);
+  const taux = parseFloat(document.getElementById('taux').value) / 100;
+  const puissance = document.getElementById('puissance').value;
+  const exposition = document.getElementById('exposition').value;
 
-  function genererSimulation() {
-    const conso = parseFloat(document.getElementById('conso').value);
-    const prixKwh = parseFloat(document.getElementById('prixKwh').value);
-    const prod = parseFloat(document.getElementById('prod').value);
-    const autoPct = parseFloat(document.getElementById('autoconso').value);
-    const acheminement = parseFloat(document.getElementById('acheminement').value);
-    const taux = parseFloat(document.getElementById('taux').value) / 100;
-    const puissance = document.getElementById('puissance').value;
-    const exposition = document.getElementById('exposition').value;
+  const autoKwh = prod * autoPct / 100;
+  const stockKwh = prod - autoKwh;
+  const facture = conso * prixKwh;
 
-    const autoKwh = prod * autoPct / 100;
-    const stockKwh = prod - autoKwh;
-    const facture = conso * prixKwh;
+  let recapText = `Consommation annuelle : ${conso} kWh\nPrix du kWh : ${prixKwh.toFixed(3)} €\nFacture annuelle (hors abonnement et taxes) : ${facture.toFixed(0)} €\nProduction annuelle : ${prod} kWh\nEn autoconsommation : ${autoKwh.toFixed(0)} kWh (${autoPct.toFixed(0)} %)\nSurplus : ${stockKwh.toFixed(0)} kWh (${(100 - autoPct).toFixed(0)} %)`;
 
-    let recapText = `Consommation annuelle : ${conso} kWh\nPrix du kWh : ${prixKwh.toFixed(3)} €\nFacture annuelle (hors abonnement et taxes) : ${facture.toFixed(0)} €\nProduction annuelle : ${prod} kWh\nEn autoconsommation : ${autoKwh.toFixed(0)} kWh (${autoPct.toFixed(0)} %)\nSurplus : ${stockKwh.toFixed(0)} kWh (${(100 - autoPct).toFixed(0)} %)`;
+  if (puissance) recapText += `\nPuissance installée : ${puissance}`;
+  if (exposition) recapText += `\nExposition : ${exposition}`;
 
-    if (puissance) recapText += `\nPuissance installée : ${puissance}`;
-    if (exposition) recapText += `\nExposition : ${exposition}`;
+  document.getElementById('recapSimulation').innerText = recapText;
 
-    document.getElementById('recapSimulation').innerText = recapText;
+  let table = '<table><thead><tr><th>Année</th>';
+  for (let i = 1; i <= 15; i++) table += `<th>${i}</th>`;
+  table += '</tr></thead><tbody>';
 
-    let table = '<table><thead><tr><th>Année</th>';
-    for (let i = 1; i <= 15; i++) table += `<th>${i}</th>`;
-    table += '</tr></thead><tbody>';
+  const rows = [
+    { label: `Prix du kWh`, values: [] },
+    { label: `Conso actuelle (${conso} kWh)`, values: [] },
+    { label: `Autoconsommation (${autoKwh.toFixed(0)} kWh)`, values: [] },
+    { label: `Stockage virtuel (${stockKwh.toFixed(0)} kWh)`, values: [] },
+    { label: `Acheminement stockage (${acheminement.toFixed(2)} €/kWh)`, values: [] },
+    { label: `Nouvelle facture`, values: [] },
+    { label: `Économie annuelle`, values: [] },
+    { label: `Économie mensuelle`, values: [] },
+  ];
 
-    const rows = [
-      { label: `Prix du kWh`, values: [] },
-      { label: `Conso actuelle (${conso} kWh)`, values: [] },
-      { label: `Autoconsommation (${autoKwh.toFixed(0)} kWh)`, values: [] },
-      { label: `Stockage virtuel (${stockKwh.toFixed(0)} kWh)`, values: [] },
-      { label: `Acheminement stockage (${acheminement.toFixed(2)} €/kWh)`, values: [] },
-      { label: `Nouvelle facture`, values: [] },
-      { label: `Économie annuelle`, values: [] },
-      { label: `Économie mensuelle`, values: [] },
-    ];
+  let totalEconomie = 0;
+  for (let i = 0; i < 15; i++) {
+    const prixAn = prixKwh * Math.pow(1 + taux, i);
+    const factureAvant = conso * prixAn;
+    const autoValue = autoKwh * prixAn;
+    const stockValue = stockKwh * prixAn;
+    const acheminementCost = stockKwh * acheminement;
+    const factureApres = factureAvant - autoValue - stockValue + acheminementCost;
+    const economie = factureAvant - factureApres;
 
-    let totalEconomie = 0;
-    for (let i = 0; i < 15; i++) {
-      const prixAn = prixKwh * Math.pow(1 + taux, i);
-      const factureAvant = conso * prixAn;
-      const autoValue = autoKwh * prixAn;
-      const stockValue = stockKwh * prixAn;
-      const acheminementCost = stockKwh * acheminement;
-      const factureApres = factureAvant - autoValue - stockValue + acheminementCost;
-      const economie = factureAvant - factureApres;
+    rows[0].values.push(prixAn.toFixed(3) + ' €');
+    rows[1].values.push(factureAvant.toFixed(0) + ' €');
+    rows[2].values.push('-' + autoValue.toFixed(0) + ' €');
+    rows[3].values.push('-' + stockValue.toFixed(0) + ' €');
+    rows[4].values.push('+' + acheminementCost.toFixed(0) + ' €');
+    rows[5].values.push(factureApres.toFixed(0) + ' €');
+    rows[6].values.push(`<span style="color:green; font-weight:bold;">${economie.toFixed(0)} €</span>`);
+    rows[7].values.push(`<span style="color:green; font-weight:bold;">${Math.round(economie / 12)} €</span>`);
 
-      rows[0].values.push(prixAn.toFixed(3) + ' €');
-      rows[1].values.push(factureAvant.toFixed(0) + ' €');
-      rows[2].values.push('-' + autoValue.toFixed(0) + ' €');
-      rows[3].values.push('-' + stockValue.toFixed(0) + ' €');
-      rows[4].values.push('+' + acheminementCost.toFixed(0) + ' €');
-      rows[5].values.push(factureApres.toFixed(0) + ' €');
-      rows[6].values.push(`<span style="color:green; font-weight:bold;">${economie.toFixed(0)} €</span>`);
-      rows[7].values.push(`<span style="color:green; font-weight:bold;">${Math.round(economie / 12)} €</span>`);
-      totalEconomie += economie;
-    }
-
-    rows.forEach(row => {
-      table += `<tr><td class="label">${row.label}</td>`;
-      row.values.forEach(val => table += `<td>${val}</td>`);
-      table += '</tr>';
-    });
-
-    table += `</tbody></table><p style="font-weight:bold; margin-top:15px; font-size: 1.6rem; text-align: center;">Économie totale sur 15 ans : ${totalEconomie.toFixed(0)} €</p>`;
-
-    document.getElementById('resultatSimulation').innerHTML = table;
+    totalEconomie += economie;
   }
+
+  rows.forEach(row => {
+    table += `<tr><td class="label">${row.label}</td>`;
+    row.values.forEach(val => table += `<td>${val}</td>`);
+    table += '</tr>';
+  });
+
+  const economie30ans = totalEconomie * 2;
+
+  table += `</tbody></table>
+    <p style="font-weight:bold; margin-top:15px; font-size: 1.6rem; text-align: center;">
+      Économie totale sur 15 ans : ${totalEconomie.toFixed(0)} €
+    </p>
+    <p style="text-align:center; font-size: 1.4rem; margin-top: 5px;">
+      Avec <strong>BIOFRANCE ÉNERGIES</strong>, votre installation est garantie 30 ans.<br>
+      Vous profitez d’un gain total de plus de <strong style="color:green;">${economie30ans.toFixed(0)} €</strong>, sans compter la valorisation de votre maison.
+    </p>`;
+
+  document.getElementById('resultatSimulation').innerHTML = table;
+}
+
+ 
 
   window.addEventListener('load', function () {
     const adresseInput = document.getElementById('adresse');
