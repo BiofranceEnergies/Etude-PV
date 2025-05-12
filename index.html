@@ -238,7 +238,7 @@
       rows[3].values.push('-' + stockValue.toFixed(0) + ' €');
       rows[4].values.push('+' + acheminementCost.toFixed(0) + ' €');
       rows[5].values.push(factureApres.toFixed(0) + ' €');
-      rows[6].values.push(economie.toFixed(0) + ' €');
+      rows[6].values.push(`<span style="color:green; font-weight:bold;">${economie.toFixed(0)} €</span>`);
       rows[7].values.push(Math.round(economie / 12) + ' €');
       totalEconomie += economie;
     }
