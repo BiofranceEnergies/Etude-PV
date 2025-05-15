@@ -199,7 +199,7 @@ function genererSimulation() {
   const stockKwh = prod - autoKwh;
   const facture = conso * prixKwh;
 
-  let recapText = `Consommation annuelle : ${conso} kWh\nPrix du kWh : ${prixKwh.toFixed(3)} €\nFacture annuelle (hors abonnement et taxes) : ${facture.toFixed(0)} €\nProduction annuelle : ${prod} kWh\nEn autoconsommation : ${autoKwh.toFixed(0)} kWh (${autoPct.toFixed(0)} %)\nSurplus : ${stockKwh.toFixed(0)} kWh (${(100 - autoPct).toFixed(0)} %)`;
+  let recapText = `Consommation annuelle : ${conso} kWh\nPrix du kWh : ${prixKwh.toFixed(3)} €\nFacture annuelle : ${facture.toFixed(0)} €\nProduction annuelle : ${prod} kWh\nEn autoconsommation : ${autoKwh.toFixed(0)} kWh (${autoPct.toFixed(0)} %)\nSurplus : ${stockKwh.toFixed(0)} kWh (${(100 - autoPct).toFixed(0)} %)`;
 
   if (puissance) recapText += `\nPuissance installée : ${puissance}`;
   if (exposition) recapText += `\nExposition : ${exposition}`;
