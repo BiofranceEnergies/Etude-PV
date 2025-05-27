@@ -14,7 +14,7 @@
     input, select { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
     .upload-wrapper label { font-weight: bold; font-size: 1rem; margin-bottom: 10px; display: block; }
     .upload-container {
-      border: 2px dashed #d58512; background-color: #00000;
+      border: 2px dashed #d58512;
       width: 600px; height: 350px; border-radius: 10px;
       margin: 0 auto; position: relative; overflow: hidden; cursor: pointer;
     }
@@ -74,7 +74,6 @@
       th, td { padding: 5px; }
       h1 { font-size: 1.2rem; margin-bottom: 15px; }
     }
-
     #entete-pdf { display: none; }
     @media print { #entete-pdf { display: block !important; } }
   </style>
@@ -114,7 +113,6 @@
   <div><label>✉️ Email</label><input type="email" id="email"></div>
   <div><label>🔢 Point de livraison (PDL)</label><input type="text" id="pdl"></div>
 </div>
-
 <form>
   <div><label>🔌 Consommation annuelle (kWh)</label><input type="number" id="conso" value="9800"></div>
   <div><label>💶 Prix du kWh (€)</label><input type="number" id="prixKwh" value="0.200" step="0.001"></div>
@@ -138,29 +136,11 @@
   </div>
 </form>
 
-<div class="upload-wrapper">
-  <label for="uploadPanneaux">📦 Panneaux photovoltaïques</label>
-  <div class="upload-container" onclick="document.getElementById('uploadPanneaux').click()">
-    <input type="file" id="uploadPanneaux" accept="image/*" onchange="previewImage(event, 'previewPanneaux')">
-    <span class="placeholder" id="placeholderPanneaux">📤 Téléverser une image</span>
-    <img id="previewPanneaux" />
-  </div>
-</div>
-
-<div class="upload-wrapper">
-  <label for="uploadResultats">📈 Performance du système PV couplé au réseau : Résultats</label>
-  <div class="upload-container" onclick="document.getElementById('uploadResultats').click()">
-    <input type="file" id="uploadResultats" accept="image/*" onchange="previewImage(event, 'previewResultats')">
-    <span class="placeholder" id="placeholderResultats">📤 Téléverser une image</span>
-    <img id="previewResultats" />
-  </div>
-</div>
-
 <form>
   <div><label>🔋 Production photovoltaïque annuelle (kWh)</label><input type="number" id="prod" value="6200"></div>
-  <div><label>📊 % d'autoconsommation: C'est la consommation en instantané de l'électricité produite par vos panneaux</label><input type="number" id="autoconso" value="40"></div>
-  <div><label>📦 Coût d'acheminement stockage (€ / kWh): Rapatriement de votre épargne électrique stockée dans votre batterie virtuelle </label><input type="number" id="acheminement" value="0.05" step="0.001"></div>
-  <div><label>📈 Taux d’augmentation annuelle du kWh (%) - En sachant que l'augmentation annuelle du kWh sur les 10 dernières années a été de 8,56% !</label><input type="number" id="taux" value="5" step="0.1"></div>
+  <div><label>📊 % d'autoconsommation</label><input type="number" id="autoconso" value="40"></div>
+  <div><label>📦 Coût d'acheminement stockage (€ / kWh)</label><input type="number" id="acheminement" value="0.05" step="0.001"></div>
+  <div><label>📈 Taux d’augmentation annuelle du kWh (%)</label><input type="number" id="taux" value="5" step="0.1"></div>
   <div class="full-width">
     <button type="button" onclick="genererSimulation()">📊 Générer le tableau</button>
     <button type="button" onclick="window.print()">📄 Exporter l'étude en PDF</button>
@@ -170,21 +150,32 @@
 <div class="recap" id="recapSimulation">Simulation en attente de génération.</div>
 <div id="resultatSimulation"></div>
 
+<div style="margin-top:30px; padding:20px; background:#f2f2f2; border:1px solid #ccc; border-radius:8px; max-width:100%; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+  <h2 style="color:#28a745; text-align:center;">💳 Simulation financement sur 15 ans</h2>
+  <div style="display:flex; flex-wrap: wrap; gap: 20px; justify-content:center; margin-bottom: 15px;">
+    <div>
+      <label>💸 Coût total de l'installation (en €)</label><br>
+      <input type="number" id="coutInstallation" value="12900" step="100" style="width:200px; padding:8px;">
+    </div>
+    <div>
+      <label>📅 Mensualité (en €)</label><br>
+      <input type="number" id="mensualite" value="107.52" step="0.01" style="width:200px; padding:8px;">
+    </div>
+    <div>
+      <label>★ TAEG fixe (%)</label><br>
+      <input type="number" id="taeg" value="5.96" step="0.01" style="width:200px; padding:8px;">
+    </div>
+    <div style="align-self:end;">
+      <button onclick="genererTableauMensualites()" style="padding:10px 20px; background:#28a745; color:white; border:none; border-radius:6px; cursor:pointer;">
+        📊 Générer le tableau
+      </button>
+    </div>
+  </div>
+
+  <div id="tableauMensualites" style="margin-top:20px;"></div>
+</div>
+
 <script>
-  function previewImage(event, id) {
-    const file = event.target.files[0];
-    const preview = document.getElementById(id);
-    const placeholder = document.getElementById('placeholder' + id.replace('preview', ''));
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        preview.src = e.target.result;
-        preview.style.display = 'block';
-        if (placeholder) placeholder.style.display = 'none';
-      };
-      reader.readAsDataURL(file);
-    }
-  }
 function genererSimulation() {
   const conso = parseFloat(document.getElementById('conso').value);
   const prixKwh = parseFloat(document.getElementById('prixKwh').value);
@@ -199,29 +190,19 @@ function genererSimulation() {
   const stockKwh = prod - autoKwh;
   const facture = conso * prixKwh;
 
-  let recapText = `Consommation annuelle : ${conso} kWh\nPrix du kWh : ${prixKwh.toFixed(3)} €\nFacture annuelle : ${facture.toFixed(0)} €\nProduction annuelle : ${prod} kWh\nEn autoconsommation : ${autoKwh.toFixed(0)} kWh (${autoPct.toFixed(0)} %)\nSurplus : ${stockKwh.toFixed(0)} kWh (${(100 - autoPct).toFixed(0)} %)`;
+  let recapText = `Consommation annuelle : ${conso} kWh\\nPrix du kWh : ${prixKwh.toFixed(3)} €\\nFacture annuelle : ${facture.toFixed(0)} €\\nProduction annuelle : ${prod} kWh\\nEn autoconsommation : ${autoKwh.toFixed(0)} kWh (${autoPct.toFixed(0)} %)\\nSurplus : ${stockKwh.toFixed(0)} kWh (${(100 - autoPct).toFixed(0)} %)`;
+  if (puissance) recapText += `\\nPuissance installée : ${puissance}`;
+  if (exposition) recapText += `\\nExposition : ${exposition}`;
+  document.getElementById('recapSimulation').innerHTML = recapText.replaceAll('\\n', '<br>');
 
-  if (puissance) recapText += `\nPuissance installée : ${puissance}`;
-  if (exposition) recapText += `\nExposition : ${exposition}`;
-
-  document.getElementById('recapSimulation').innerText = recapText;
 
   let table = '<table><thead><tr><th>Année</th>';
   for (let i = 1; i <= 15; i++) table += `<th>${i}</th>`;
   table += '</tr></thead><tbody>';
 
-  const rows = [
-    { label: `Prix du kWh`, values: [] },
-    { label: `Conso actuelle (${conso} kWh)`, values: [] },
-    { label: `Autoconsommation (${autoKwh.toFixed(0)} kWh)`, values: [] },
-    { label: `Stockage virtuel (${stockKwh.toFixed(0)} kWh)`, values: [] },
-    { label: `Acheminement stockage (${acheminement.toFixed(2)} €/kWh)`, values: [] },
-    { label: `Nouvelle facture pour (${conso} kWh) `, values: [] },
-    { label: `Économie annuelle`, values: [] },
-    { label: `Économie mensuelle`, values: [] },
-  ];
+  const rows = [[], [], [], [], [], [], [], []];
+  const ecoMensuelles = [];
 
-  let totalEconomie = 0;
   for (let i = 0; i < 15; i++) {
     const prixAn = prixKwh * Math.pow(1 + taux, i);
     const factureAvant = conso * prixAn;
@@ -230,92 +211,134 @@ function genererSimulation() {
     const acheminementCost = stockKwh * acheminement;
     const factureApres = factureAvant - autoValue - stockValue + acheminementCost;
     const economie = factureAvant - factureApres;
+    const economieMensuelle = Math.round(economie / 12);
+    ecoMensuelles.push(economieMensuelle);
 
-    rows[0].values.push(prixAn.toFixed(3) + ' €');
-    rows[1].values.push(factureAvant.toFixed(0) + ' €');
-    rows[2].values.push('-' + autoValue.toFixed(0) + ' €');
-    rows[3].values.push('-' + stockValue.toFixed(0) + ' €');
-    rows[4].values.push('+' + acheminementCost.toFixed(0) + ' €');
-    rows[5].values.push(factureApres.toFixed(0) + ' €');
-    rows[6].values.push(`<span style="color:green; font-weight:bold;">${economie.toFixed(0)} €</span>`);
-    rows[7].values.push(`<span style="color:green; font-weight:bold;">${Math.round(economie / 12)} €</span>`);
-
-    totalEconomie += economie;
+    rows[0].push(prixAn.toFixed(3) + ' €');
+    rows[1].push(factureAvant.toFixed(0) + ' €');
+    rows[2].push('-' + autoValue.toFixed(0) + ' €');
+    rows[3].push('-' + stockValue.toFixed(0) + ' €');
+    rows[4].push('+' + acheminementCost.toFixed(0) + ' €');
+    rows[5].push(factureApres.toFixed(0) + ' €');
+    rows[6].push(`<span style="color:green; font-weight:bold;">${economie.toFixed(0)} €</span>`);
+    rows[7].push(`<span style="color:green; font-weight:bold;">${economieMensuelle} €</span>`);
   }
 
-  rows.forEach(row => {
-    table += `<tr><td class="label">${row.label}</td>`;
-    row.values.forEach(val => table += `<td>${val}</td>`);
+  const labels = [
+    'Prix du kWh', `Conso actuelle (${conso} kWh)`,
+    `Autoconsommation (${autoKwh.toFixed(0)} kWh)`, `Stockage virtuel (${stockKwh.toFixed(0)} kWh)`,
+    `Acheminement stockage (${acheminement.toFixed(2)} €/kWh)`,
+    `Nouvelle facture pour ${conso} kWh`, 'Économie annuelle', 'Économie mensuelle'
+  ];
+
+  for (let i = 0; i < rows.length; i++) {
+    table += `<tr><td class="label">${labels[i]}</td>`;
+    for (let j = 0; j < 15; j++) {
+      table += `<td>${rows[i][j]}</td>`;
+    }
     table += '</tr>';
-  });
+  }
 
-  const economie30ans = totalEconomie * 2;
+  // Fin du tableau HTML
+table += '</tbody></table>';
 
-  table += `</tbody></table>
-    <p style="font-weight:bold; margin-top:15px; font-size: 1.6rem; text-align: center;">
-      Économie totale sur 15 ans :<strong style="color:green;"> ${totalEconomie.toFixed(0)} €</strong>    </p>
-    <p style="text-align:center; font-size: 1.4rem; margin-top: 5px;">
-      Avec <strong>BIOFRANCE ÉNERGIES</strong>, votre installation est garantie 30 ans.<br>
-      Vous profitez d’un gain total de plus de <strong style="color:green;">${economie30ans.toFixed(0)} €</strong>, sans compter la valorisation de votre maison.
-    </p>`;
+// Calcul totalEconomie juste après
+let totalEconomie = 0;
+for (let i = 0; i < 15; i++) {
+  const text = rows[6][i]; // ligne Économie annuelle
+  const numeric = parseInt(text.replace(/[^\d\-]/g, ''));
+  if (!isNaN(numeric)) totalEconomie += Math.abs(numeric);
 
-  document.getElementById('resultatSimulation').innerHTML = table;
+}
+const economie30ans = totalEconomie * 2;
+
+// Ajout du bloc résumé sous le tableau
+table += `
+  <p style="font-weight:bold; margin-top:15px; font-size: 1.6rem; text-align: center;">
+    Économie totale sur 15 ans : <strong style="color:green;">${totalEconomie.toLocaleString('fr-FR')} €</strong>
+  </p>
+  <p style="text-align:center; font-size: 1.4rem; margin-top: 5px;">
+    Avec <strong>BIOFRANCE ÉNERGIES</strong>, votre installation est garantie 30 ans.<br>
+    Vous profitez d’un gain total de plus de <strong style="color:green;">${economie30ans.toLocaleString('fr-FR')} €</strong>, sans compter la valorisation de votre maison.
+  </p>`;
+
+// Injection dans le DOM
+document.getElementById('resultatSimulation').innerHTML = table;
+document.getElementById('resultatSimulation').dataset.economiesMensuelles = JSON.stringify(ecoMensuelles);
+
 }
 
- 
+function genererTableauMensualites() {
+  const mensualite = parseFloat(document.getElementById('mensualite').value);
+  const coutInstallation = parseFloat(document.getElementById('coutInstallation').value);
+  const taeg = parseFloat(document.getElementById('taeg').value);
+  const duree = 180;
+  const montantTotalDû = mensualite * duree;
 
-  window.addEventListener('load', function () {
-    const adresseInput = document.getElementById('adresse');
-    const cpVilleInput = document.getElementById('cpville');
+  const dataset = document.getElementById('resultatSimulation').dataset;
+  let ecoMensuelles = [];
+  try {
+    ecoMensuelles = JSON.parse(dataset.economiesMensuelles);
+  } catch {
+    ecoMensuelles = Array(15).fill(0);
+  }
 
-    if (adresseInput) {
-      const autocomplete = new google.maps.places.Autocomplete(adresseInput, {
-        types: ['geocode'],
-        componentRestrictions: { country: 'fr' }
-      });
+  let html = `<p style='font-weight:bold; text-align:center; font-size:1.1rem;'>💸 Coût total : ${coutInstallation.toFixed(0)} € TTC</p>`;
+  html += `<p style='text-align:center;'>★ TAEG : ${taeg.toFixed(2)} %, Durée : 180 mois</p>`;
+  html += `<p style='text-align:center;'>💳 Total dû (hors ass. facultative) : <strong>${montantTotalDû.toFixed(0)} €</strong></p>`;
 
-      autocomplete.addListener('place_changed', function () {
-        const place = autocomplete.getPlace();
-        let rue = '', numero = '', cp = '', ville = '';
 
-        if (place.address_components) {
-          place.address_components.forEach(function (component) {
-            const types = component.types;
-            if (types.includes('street_number')) numero = component.long_name;
-            if (types.includes('route')) rue = component.long_name;
-            if (types.includes('postal_code')) cp = component.long_name;
-            if (types.includes('locality')) ville = component.long_name;
-          });
+  html += '<table><thead><tr><th>Année</th>';
+  for (let i = 1; i <= 15; i++) html += `<th>${i}</th>`;
+  html += '</tr></thead><tbody>';
 
-          adresseInput.value = `${numero} ${rue}`.trim();
-          cpVilleInput.value = `${cp} ${ville}`.trim();
-        }
-      });
-    }
-  });
+  html += '<tr><td class="label">💳 Mensualité</td>';
+  for (let i = 0; i < 15; i++) html += `<td>${mensualite.toFixed(2)} €</td>`;
+  html += '</tr>';
+
+  html += '<tr><td class="label">✅ Écart net mensuel</td>';
+  for (let i = 0; i < 15; i++) {
+    const ecart = ecoMensuelles[i] - mensualite;
+    html += `<td style="color:${ecart >= 0 ? 'green' : 'red'}; font-weight:bold;">${ecart >= 0 ? '+' : ''}${ecart.toFixed(0)} €</td>`;
+  }
+  html += '</tr>';
+
+  html += '</tbody></table>';
+  document.getElementById('tableauMensualites').innerHTML = html;
+}
 </script>
 
-<script>
-  function afficherDate() {
-    const date = new Date();
-    const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
-    const texte = "Date de l'étude : " + date.toLocaleDateString('fr-FR', options);
-    const cible = document.getElementById('dateEtude');
-    if (cible) cible.textContent = texte;
-  }
-  window.onload = afficherDate;
-</script>
-<div id="mention-legale-pdf" style="display: none; text-align: center; margin-top: 30px; font-size: 0.85rem; color: #555;">
-  *Les résultats présentés dans cette étude sont des estimations basées sur les données fournies. Ils ne constituent pas un engagement contractuel.*
-</div>
+    <script>
+window.addEventListener('load', function () {
+  const adresseInput = document.getElementById('adresse');
+  const cpVilleInput = document.getElementById('cpville');
 
-<style>
-  @media print {
-    #mention-legale-pdf {
-      display: block !important;
-    }
+  if (adresseInput) {
+    const autocomplete = new google.maps.places.Autocomplete(adresseInput, {
+      types: ['geocode'],
+      componentRestrictions: { country: 'fr' }
+    });
+
+    autocomplete.addListener('place_changed', function () {
+      const place = autocomplete.getPlace();
+      let rue = '', numero = '', cp = '', ville = '';
+
+      if (place.address_components) {
+        place.address_components.forEach(function (component) {
+          const types = component.types;
+          if (types.includes('street_number')) numero = component.long_name;
+          if (types.includes('route')) rue = component.long_name;
+          if (types.includes('postal_code')) cp = component.long_name;
+          if (types.includes('locality')) ville = component.long_name;
+        });
+
+        adresseInput.value = `${numero} ${rue}`.trim();
+        cpVilleInput.value = `${cp} ${ville}`.trim();
+      }
+    });
   }
-</style>
+});
+</script>
 
 </body>
 </html>
