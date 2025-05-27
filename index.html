@@ -105,6 +105,9 @@
   </div>
 </div>
 
+
+
+
 <div class="identite">
   <div><label>👤 Nom / Prénom</label><input type="text" id="nom"></div>
   <div><label>🏠 Adresse</label><input type="text" id="adresse"></div>
@@ -135,6 +138,23 @@
     </select>
   </div>
 </form>
+    <div class="upload-wrapper">
+  <label for="uploadPanneaux">📦 Panneaux photovoltaïques</label>
+  <div class="upload-container" onclick="document.getElementById('uploadPanneaux').click()">
+    <input type="file" id="uploadPanneaux" accept="image/*" onchange="previewImage(event, 'previewPanneaux')">
+    <span class="placeholder" id="placeholderPanneaux">📤 Téléverser une image</span>
+    <img id="previewPanneaux" />
+  </div>
+</div>
+
+<div class="upload-wrapper">
+  <label for="uploadResultats">📈 Performance du système PV couplé au réseau : Résultats</label>
+  <div class="upload-container" onclick="document.getElementById('uploadResultats').click()">
+    <input type="file" id="uploadResultats" accept="image/*" onchange="previewImage(event, 'previewResultats')">
+    <span class="placeholder" id="placeholderResultats">📤 Téléverser une image</span>
+    <img id="previewResultats" />
+  </div>
+</div>
 
 <form>
   <div><label>🔋 Production photovoltaïque annuelle (kWh)</label><input type="number" id="prod" value="6200"></div>
