@@ -359,6 +359,22 @@ window.addEventListener('load', function () {
   }
 });
 </script>
+<script>
+  function previewImage(event, id) {
+    const file = event.target.files[0];
+    const preview = document.getElementById(id);
+    const placeholder = document.getElementById('placeholder' + id.replace('preview', ''));
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+        if (placeholder) placeholder.style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+</script>
 
 </body>
 </html>
