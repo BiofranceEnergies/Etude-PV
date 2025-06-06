@@ -289,6 +289,9 @@ document.getElementById('resultatSimulation').dataset.economiesMensuelles = JSON
 }
 
 function genererTableauMensualites() {
+  // ✅ On relance la simulation pour être sûr que les données sont à jour
+  genererSimulation();
+
   const mensualite = parseFloat(document.getElementById('mensualite').value);
   const coutInstallation = parseFloat(document.getElementById('coutInstallation').value);
   const taeg = parseFloat(document.getElementById('taeg').value);
@@ -306,7 +309,6 @@ function genererTableauMensualites() {
   let html = `<p style='font-weight:bold; text-align:center; font-size:1.1rem;'>💸 Coût total : ${coutInstallation.toFixed(0)} € TTC</p>`;
   html += `<p style='text-align:center;'>★ TAEG : ${taeg.toFixed(2)} %, Durée : 180 mois</p>`;
   html += `<p style='text-align:center;'>💳 Total dû (hors ass. facultative) : <strong>${montantTotalDû.toFixed(0)} €</strong></p>`;
-
 
   html += '<table><thead><tr><th>Année</th>';
   for (let i = 1; i <= 15; i++) html += `<th>${i}</th>`;
@@ -326,6 +328,7 @@ function genererTableauMensualites() {
   html += '</tbody></table>';
   document.getElementById('tableauMensualites').innerHTML = html;
 }
+
 </script>
 
     <script>
