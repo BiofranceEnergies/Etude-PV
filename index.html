@@ -289,8 +289,7 @@ document.getElementById('resultatSimulation').dataset.economiesMensuelles = JSON
 }
 
 function genererTableauMensualites() {
-  // ✅ On relance la simulation pour être sûr que les données sont à jour
-  genererSimulation();
+  genererSimulation(); // 🔁 Toujours relancer la simulation d'abord
 
   const mensualite = parseFloat(document.getElementById('mensualite').value);
   const coutInstallation = parseFloat(document.getElementById('coutInstallation').value);
@@ -306,10 +305,20 @@ function genererTableauMensualites() {
     ecoMensuelles = Array(15).fill(0);
   }
 
-  let html = `<p style='font-weight:bold; text-align:center; font-size:1.1rem;'>💸 Coût total : ${coutInstallation.toFixed(0)} € TTC</p>`;
-  html += `<p style='text-align:center;'>★ TAEG : ${taeg.toFixed(2)} %, Durée : 180 mois</p>`;
-  html += `<p style='text-align:center;'>💳 Total dû (hors ass. facultative) : <strong>${montantTotalDû.toFixed(0)} €</strong></p>`;
+  // 💬 On commence à construire le HTML
+  let html = `
+    <div style="text-align:center; margin-bottom: 15px;">
+      <button onclick="toggleBlocResumeMensualite()">👁️ Afficher / Masquer les détails du financement</button>
+    </div>
 
+    <div id="blocResumeMensualite" style="display: none;">
+      <p style='font-weight:bold; text-align:center; font-size:1.1rem;'>💸 Coût total : ${coutInstallation.toFixed(0)} € TTC</p>
+      <p style='text-align:center;'>★ TAEG : ${taeg.toFixed(2)} %, Durée : 180 mois</p>
+      <p style='text-align:center;'>💳 Total dû (hors ass. facultative) : <strong>${montantTotalDû.toFixed(0)} €</strong></p>
+    </div>
+  `;
+
+  // 🧮 Ajout du tableau
   html += '<table><thead><tr><th>Année</th>';
   for (let i = 1; i <= 15; i++) html += `<th>${i}</th>`;
   html += '</tr></thead><tbody>';
@@ -326,8 +335,11 @@ function genererTableauMensualites() {
   html += '</tr>';
 
   html += '</tbody></table>';
+
+  // 🧾 Injection du HTML dans le DOM
   document.getElementById('tableauMensualites').innerHTML = html;
 }
+
 
 </script>
 
@@ -389,6 +401,12 @@ window.addEventListener('load', function () {
     }
   }
 </style>
+<script>
+function toggleBlocResumeMensualite() {
+  const bloc = document.getElementById('blocResumeMensualite');
+  bloc.style.display = (bloc.style.display === 'none') ? 'block' : 'none';
+}
+</script>
 
 </body>
 </html>
